@@ -421,7 +421,7 @@ The software infrastructure was designed and implemented as a dedicated subsyste
 
 | Name                        | Department |
 | --------------------------- | ---------- |
-| Dhanush A(Team Lead)        | AD         |
+| Dhanush A                   | AD         |
 | Sakthi Ramasamy V           | ECE        |
 | Ganesh Prabhu R             | ECE        |
 | Aarthi K                    | CSE        |

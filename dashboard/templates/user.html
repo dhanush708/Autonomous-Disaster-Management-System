@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="description" content="Disaster alert system — real-time emergency notifications for registered users">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<title>Disaster Alert — Stay Safe</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body class="user-body">
+
+<!-- ============================================================ -->
+<!-- REGISTRATION SCREEN                                           -->
+<!-- ============================================================ -->
+
+<div id="reg-screen" class="reg-screen">
+
+    <div class="reg-logo">🛡</div>
+    <h1 class="reg-title">Disaster Alert System</h1>
+    <p class="reg-subtitle">Register to receive real-time disaster alerts for your zone</p>
+
+    <form class="reg-form" id="reg-form" onsubmit="handleRegistration(event)">
+
+        <div class="reg-field">
+            <label for="reg-name">Your Name</label>
+            <input
+                type="text"
+                id="reg-name"
+                placeholder="Enter your name"
+                required
+                autocomplete="name"
+            >
+        </div>
+
+        <div class="reg-field">
+            <label for="reg-phone">Phone Number</label>
+            <input
+                type="tel"
+                id="reg-phone"
+                placeholder="+91 00000 00000"
+                required
+                autocomplete="tel"
+            >
+        </div>
+
+        <div class="reg-field">
+            <label for="reg-location">Your Zone</label>
+            <select id="reg-location" required>
+                <option value="" disabled selected>Select your zone</option>
+                <option value="1">Zone 1 — Landslide Area</option>
+                <option value="2">Zone 2 — Forest Fire Area</option>
+                <option value="3">Zone 3 — Cloudburst Area</option>
+                <option value="4">Zone 4 — Earthquake Area</option>
+            </select>
+        </div>
+
+        <button type="submit" class="reg-submit" id="reg-submit-btn">
+            Register &amp; Monitor My Zone →
+        </button>
+
+    </form>
+
+    <footer style="margin-top: 32px; color: #64748b; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">
+        Built by Team GuardianPulse
+    </footer>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- DASHBOARD SCREEN                                              -->
+<!-- ============================================================ -->
+
+<div id="dash-screen" class="dash-screen">
+
+    <!-- Status bar -->
+    <div class="user-status-bar">
+        <span class="user-name-tag" id="user-name-display">Welcome</span>
+        <span class="user-location-tag" id="user-zone-display">Zone --</span>
+    </div>
+
+    <!-- Main alert display — content swapped by JS based on state -->
+    <div class="user-main-display display-safe" id="main-display">
+
+        <!-- SAFE (default) -->
+        <div id="state-safe">
+            <div class="safe-icon">✅</div>
+            <div class="safe-title">System Normal</div>
+            <div class="safe-subtitle" id="safe-disaster-name">Your zone is safe</div>
+        </div>
+
+        <!-- SUSPICIOUS -->
+        <div id="state-suspicious" style="display:none;">
+            <div class="susp-icon">👁</div>
+            <div class="susp-title">Elevated Activity</div>
+            <div class="susp-subtitle" id="susp-disaster-name">Low-level sensor activity detected</div>
+            <div class="confidence-pill" id="susp-confidence">0%</div>
+            <div class="verify-tag">Monitoring closely — no action needed yet</div>
+        </div>
+
+        <!-- WARNING -->
+        <div id="state-warning" style="display:none;">
+            <div class="warn-icon">⚠️</div>
+            <div class="warn-title">Warning</div>
+            <div class="warn-subtitle" id="warn-disaster-name">Possible disaster conditions detected</div>
+            <div class="confidence-pill" id="warn-confidence">0%</div>
+            <div class="verify-tag">Stay alert — situation being monitored</div>
+        </div>
+
+        <!-- VERIFYING -->
+        <div id="state-verifying" style="display:none;">
+            <div class="verify-icon">🔍</div>
+            <div class="verify-title">Possible Disaster Detected</div>
+            <div class="verify-subtitle" id="verify-disaster-name">Verification in progress</div>
+            <div class="confidence-pill" id="verify-confidence">0%</div>
+            <div class="verify-tag">Verification In Progress — Experts Reviewing</div>
+            <div class="rover-pending-tag">
+                🤖 Rover Verification Pending — Future System
+            </div>
+        </div>
+
+        <!-- CONFIRMED -->
+        <div id="state-confirmed" style="display:none;">
+
+            <div class="confirmed-icon">🚨</div>
+            <div class="confirmed-alert">RED ALERT</div>
+            <div class="confirmed-disaster" id="confirmed-disaster-name">DISASTER CONFIRMED</div>
+
+            <div class="evacuation-box">
+                <div class="evac-title">⚡ EVACUATION WARNING</div>
+                <ul class="evac-instructions" id="evac-instructions">
+                    <!-- Populated by JS based on disaster type -->
+                </ul>
+            </div>
+
+            <div class="sms-status">📱 SMS Notification — Future Feature</div>
+
+        </div>
+
+        <!-- FALSE POSITIVE -->
+        <div id="state-fp" style="display:none;">
+            <div class="fp-icon">✋</div>
+            <div class="fp-title">False Alarm</div>
+            <div class="fp-subtitle">System Normal</div>
+            <div class="fp-apology">Sorry for the disturbance. No disaster detected.</div>
+        </div>
+
+        <footer style="margin-top: 24px; color: rgba(255, 255, 255, 0.4); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; z-index: 10;">
+            Built by Team GuardianPulse
+        </footer>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="user-bottom-bar">
+        <span class="user-sensor-tag sensor-on" id="user-sensor-status">● Sensors Online</span>
+        <button class="logout-btn" onclick="handleLogout()">Change Zone</button>
+    </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- JAVASCRIPT                                                    -->
+<!-- ============================================================ -->
+
+<script>
+
+// =====================================================
+// EVACUATION INSTRUCTIONS PER DISASTER
+// =====================================================
+
+const EVAC_INSTRUCTIONS = {
+
+    landslide: [
+        '⬆ Move to higher ground immediately',
+        '🏃 Evacuate away from slopes and hills',
+        '🚗 Use designated evacuation routes only',
+        '📞 Call emergency services: 112',
+        '🚫 Do not return until all-clear is given',
+        '📦 Take emergency kit if time permits'
+    ],
+
+    forest_fire: [
+        '💨 Move upwind away from the fire',
+        '🚗 Evacuate along designated fire routes',
+        '🏠 Close all windows and doors before leaving',
+        '📞 Call emergency services: 101 / 112',
+        '😷 Cover mouth and nose to avoid smoke',
+        '🚫 Do not use lifts — use stairways only'
+    ],
+
+    cloudburst: [
+        '🏠 Stay indoors and away from windows',
+        '⬆ Move to higher floors if flooding occurs',
+        '🚗 Do not drive through flooded roads',
+        '📞 Call emergency services: 112',
+        '⚡ Turn off electrical mains if flooding',
+        '🚫 Avoid rivers, drains and open areas'
+    ],
+
+    earthquake: [
+        '🛡 DROP, COVER, and HOLD ON',
+        '🚫 Stay away from windows and exterior walls',
+        '🏠 If indoors, shelter under sturdy furniture',
+        '🌳 If outdoors, move away from buildings',
+        '📞 Call emergency services: 112 after shaking stops',
+        '⚠ Expect aftershocks — remain cautious'
+    ]
+};
+
+const DISASTER_LABELS = {
+    landslide:   '🏔 LANDSLIDE',
+    forest_fire: '🌲 FOREST FIRE',
+    cloudburst:  '🌧 CLOUDBURST',
+    earthquake:  '🌍 EARTHQUAKE'
+};
+
+const ZONE_LABELS = {
+    '1': 'Zone 1 — Landslide',
+    '2': 'Zone 2 — Forest Fire',
+    '3': 'Zone 3 — Cloudburst',
+    '4': 'Zone 4 — Earthquake'
+};
+
+// =====================================================
+// USER DATA
+// =====================================================
+
+let userData = null;
+let pollInterval = null;
+
+// =====================================================
+// STARTUP — check localStorage for existing session
+// =====================================================
+
+window.onload = () => {
+
+    const saved = localStorage.getItem('disaster_user');
+
+    if (saved) {
+        userData = JSON.parse(saved);
+        showDashboard();
+    } else {
+        document.getElementById('reg-screen').style.display = 'flex';
+        document.getElementById('dash-screen').style.display = 'none';
+    }
+};
+
+// =====================================================
+// REGISTRATION
+// =====================================================
+
+async function handleRegistration(e) {
+
+    e.preventDefault();
+
+    const name     = document.getElementById('reg-name').value.trim();
+    const phone    = document.getElementById('reg-phone').value.trim();
+    const location = document.getElementById('reg-location').value;
+
+    if (!name || !phone || !location) return;
+
+    const btn = document.getElementById('reg-submit-btn');
+    btn.innerText = 'Registering...';
+    btn.disabled  = true;
+
+    userData = { name, phone, location };
+
+    // Save locally
+    localStorage.setItem('disaster_user', JSON.stringify(userData));
+
+    // Save to backend (non-blocking)
+    try {
+        await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+    } catch (err) {}
+
+    showDashboard();
+}
+
+// =====================================================
+// SHOW DASHBOARD
+// =====================================================
+
+function showDashboard() {
+
+    document.getElementById('reg-screen').style.display   = 'none';
+    document.getElementById('dash-screen').style.display  = 'flex';
+
+    // Set user info in status bar
+    const nameEl = document.getElementById('user-name-display');
+    const zoneEl = document.getElementById('user-zone-display');
+
+    if (nameEl) nameEl.innerText = 'Hello, ' + userData.name;
+    if (zoneEl) zoneEl.innerText = ZONE_LABELS[userData.location] || 'Zone ' + userData.location;
+
+    // Start polling
+    fetchStatus();
+    pollInterval = setInterval(fetchStatus, 2000);
+}
+
+// =====================================================
+// LOGOUT / CHANGE ZONE
+// =====================================================
+
+function handleLogout() {
+
+    clearInterval(pollInterval);
+
+    localStorage.removeItem('disaster_user');
+    userData = null;
+
+    document.getElementById('reg-screen').style.display  = 'flex';
+    document.getElementById('dash-screen').style.display = 'none';
+
+    // Reset form
+    document.getElementById('reg-form').reset();
+    const btn = document.getElementById('reg-submit-btn');
+    btn.innerText = 'Register & Monitor My Zone →';
+    btn.disabled  = false;
+}
+
+// =====================================================
+// FETCH STATUS
+// =====================================================
+
+async function fetchStatus() {
+
+    try {
+
+        const res = await fetch(
+            `/api/user_status?location=${userData.location}`
+        );
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        updateDisplay(data);
+
+    } catch (err) {
+        // Backend unreachable — show last state
+    }
+}
+
+// =====================================================
+// UPDATE DISPLAY BASED ON STATE
+// =====================================================
+
+let lastState = null;
+
+function updateDisplay(data) {
+
+    const { state, confidence, online, disaster } = data;
+
+    // Update sensor status
+    const sensorEl = document.getElementById('user-sensor-status');
+    if (sensorEl) {
+        sensorEl.innerText   = online ? '● Sensors Online' : '● Sensors Offline';
+        sensorEl.className   = online ? 'user-sensor-tag sensor-on' : 'user-sensor-tag sensor-off';
+    }
+
+    // Hide all state blocks
+    const stateIds = [
+        'state-safe',
+        'state-suspicious',
+        'state-warning',
+        'state-verifying',
+        'state-confirmed',
+        'state-fp'
+    ];
+    stateIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    // Apply background to main display
+    const mainDisplay = document.getElementById('main-display');
+
+    const bgClasses = [
+        'display-safe',
+        'display-suspicious',
+        'display-warning',
+        'display-verifying',
+        'display-confirmed',
+        'display-fp'
+    ];
+
+    bgClasses.forEach(c => mainDisplay.classList.remove(c));
+
+    const disasterLabel = DISASTER_LABELS[disaster] || disaster.toUpperCase();
+    const confRounded   = Math.round(confidence);
+
+    switch (state) {
+
+        case 'SAFE': {
+
+            mainDisplay.classList.add('display-safe');
+            document.getElementById('state-safe').style.display = 'block';
+
+            const el = document.getElementById('safe-disaster-name');
+            if (el) el.innerText = `${disasterLabel} — Your zone is safe`;
+
+            break;
+        }
+
+        case 'SUSPICIOUS': {
+
+            mainDisplay.classList.add('display-suspicious');
+            document.getElementById('state-suspicious').style.display = 'block';
+
+            setText('susp-disaster-name', `${disasterLabel} — Low-level activity`);
+            setText('susp-confidence',    confRounded + '%');
+
+            break;
+        }
+
+        case 'WARNING': {
+
+            mainDisplay.classList.add('display-warning');
+            document.getElementById('state-warning').style.display = 'block';
+
+            setText('warn-disaster-name', `${disasterLabel} — Conditions developing`);
+            setText('warn-confidence',    confRounded + '%');
+
+            break;
+        }
+
+        case 'VERIFYING': {
+
+            mainDisplay.classList.add('display-verifying');
+            document.getElementById('state-verifying').style.display = 'block';
+
+            setText('verify-disaster-name', `${disasterLabel} — Under Review`);
+            setText('verify-confidence',    confRounded + '%');
+
+            break;
+        }
+
+        case 'CONFIRMED': {
+
+            mainDisplay.classList.add('display-confirmed');
+            document.getElementById('state-confirmed').style.display = 'block';
+
+            setText('confirmed-disaster-name', disasterLabel);
+
+            // Populate evacuation instructions
+            const instrEl = document.getElementById('evac-instructions');
+            if (instrEl) {
+                const instructions = EVAC_INSTRUCTIONS[disaster] || [];
+                instrEl.innerHTML = instructions
+                    .map(i => `<li>${i}</li>`)
+                    .join('');
+            }
+
+            break;
+        }
+
+        case 'FALSE_POSITIVE': {
+
+            mainDisplay.classList.add('display-fp');
+            document.getElementById('state-fp').style.display = 'block';
+
+            break;
+        }
+
+        default: {
+
+            mainDisplay.classList.add('display-safe');
+            document.getElementById('state-safe').style.display = 'block';
+        }
+    }
+
+    lastState = state;
+}
+
+// =====================================================
+// HELPER
+// =====================================================
+
+function setText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = text;
+}
+
+</script>
+
+</body>
+</html>

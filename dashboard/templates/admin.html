@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Real-time autonomous disaster monitoring command center — AI-assisted sensor fusion platform">
+
+<title>Disaster Management Command Center</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<!-- ============================================================ -->
+<!-- HEADER                                                        -->
+<!-- ============================================================ -->
+
+<header class="top-header">
+
+    <div class="header-left">
+        <h1>🛰 DISASTER MANAGEMENT COMMAND CENTER</h1>
+        <p>Real-Time AI-Assisted Monitoring Platform — Autonomous Sensor Fusion</p>
+    </div>
+
+    <div class="header-right">
+        <span class="header-clock" id="header-clock">--:--:--</span>
+        <div class="status-pill online" id="system-status">● SYSTEM ONLINE</div>
+    </div>
+
+</header>
+
+<!-- ============================================================ -->
+<!-- KPI SECTION                                                   -->
+<!-- ============================================================ -->
+
+<section class="kpi-section">
+
+    <div class="kpi-card">
+        <h3>Active Risks</h3>
+        <span id="active-risks">0</span>
+    </div>
+
+    <div class="kpi-card">
+        <h3>Verify Queue</h3>
+        <span id="verify-count">0</span>
+    </div>
+
+    <div class="kpi-card">
+        <h3>Confirmed Events</h3>
+        <span id="confirmed-count">0</span>
+    </div>
+
+    <div class="kpi-card">
+        <h3>System Health</h3>
+        <span id="system-health">100%</span>
+    </div>
+
+</section>
+
+<!-- ============================================================ -->
+<!-- MAP + SENSOR HEALTH + TIMELINE                                -->
+<!-- ============================================================ -->
+
+<section class="upper-grid">
+
+    <!-- LIVE DISASTER MAP -->
+    <div class="glass-panel">
+        <div class="panel-title">📍 Live Disaster Zone Map</div>
+        <div class="location-grid">
+
+            <div id="map-landslide" class="location-node safe-node">
+                <span>🏔 Zone 1 — Landslide</span>
+                <div class="indicator"></div>
+            </div>
+
+            <div id="map-forest_fire" class="location-node safe-node">
+                <span>🌲 Zone 2 — Forest Fire</span>
+                <div class="indicator"></div>
+            </div>
+
+            <div id="map-cloudburst" class="location-node safe-node">
+                <span>🌧 Zone 3 — Cloudburst</span>
+                <div class="indicator"></div>
+            </div>
+
+            <div id="map-earthquake" class="location-node safe-node">
+                <span>🌍 Zone 4 — Earthquake</span>
+                <div class="indicator"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SENSOR HEALTH -->
+    <div class="glass-panel">
+        <div class="panel-title">📡 Sensor Health</div>
+        <div class="sensor-list">
+
+            <div class="sensor-item">
+                <span>🏔 Landslide</span>
+                <span class="sensor-online" id="health-landslide">● ONLINE</span>
+            </div>
+
+            <div class="sensor-item">
+                <span>🌍 Earthquake</span>
+                <span class="sensor-online" id="health-earthquake">● ONLINE</span>
+            </div>
+
+            <div class="sensor-item">
+                <span>🌧 Cloudburst</span>
+                <span class="sensor-online" id="health-cloudburst">● ONLINE</span>
+            </div>
+
+            <div class="sensor-item">
+                <span>🌲 Forest Fire</span>
+                <span class="sensor-online" id="health-forest_fire">● ONLINE</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- LIVE TIMELINE -->
+    <div class="glass-panel">
+        <div class="panel-title">📋 Live Event Timeline</div>
+        <div id="event-feed">
+            <div class="event-item">System initialized — all sensors nominal</div>
+        </div>
+    </div>
+
+</section>
+
+<!-- ============================================================ -->
+<!-- DISASTER CARDS                                                -->
+<!-- ============================================================ -->
+
+<section class="disaster-grid">
+
+    <!-- ========== LANDSLIDE ========== -->
+    <div class="disaster-card card-safe" id="card-landslide">
+
+        <div class="card-header">
+            <h2><span class="card-icon">🏔</span> LANDSLIDE</h2>
+            <span class="sensor-badge online-badge" id="status-landslide">● ONLINE</span>
+        </div>
+
+        <div class="confidence-row">
+            <div id="landslide-confidence" class="confidence-value">0%</div>
+            <div class="state-info">
+                <div id="landslide-state" class="state-badge state-safe">SAFE</div>
+                <div class="last-update" id="landslide-last-update">Last update: --</div>
+            </div>
+        </div>
+
+        <!-- Raw Sensor Data -->
+        <div class="raw-data-panel">
+            <div class="raw-panel-title">Raw Sensor Data</div>
+            <div class="data-grid" id="landslide-raw-panel">
+                <div class="data-row"><span class="data-label">Pitch</span><span class="data-value" id="ls-pitch">--</span></div>
+                <div class="data-row"><span class="data-label">Roll</span><span class="data-value" id="ls-roll">--</span></div>
+                <div class="data-row"><span class="data-label">Tilt</span><span class="data-value" id="ls-tilt">--</span></div>
+                <div class="data-row"><span class="data-label">Avg Tilt</span><span class="data-value" id="ls-avg-tilt">--</span></div>
+                <div class="data-row"><span class="data-label">Vibration</span><span class="data-value" id="ls-vib">--</span></div>
+                <div class="data-row"><span class="data-label">Avg Vibration</span><span class="data-value" id="ls-avg-vib">--</span></div>
+            </div>
+        </div>
+
+        <!-- Dual Charts -->
+        <div class="charts-row">
+            <div class="chart-block">
+                <div class="chart-label">🌀 Tilt Over Time</div>
+                <canvas id="landslide-raw-chart"></canvas>
+            </div>
+            <div class="chart-block">
+                <div class="chart-label">📈 Confidence %</div>
+                <canvas id="landslide-conf-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Verification Section (shown only in VERIFYING state) -->
+        <div class="verify-section" id="landslide-verify">
+            <div class="verify-banner">Verification Required — Awaiting Admin Decision</div>
+            <div class="button-row">
+                <button class="confirm-btn" id="btn-confirm-landslide" onclick="confirmDisaster('landslide')">✓ Confirm Landslide</button>
+                <button class="reject-btn"  id="btn-reject-landslide"  onclick="rejectDisaster('landslide')">✗ False Positive</button>
+                <button class="reset-btn"   id="btn-reset-landslide"   onclick="resetDisaster('landslide')">↺ Reset</button>
+            </div>
+        </div>
+
+        <!-- Rover Placeholder -->
+        <div class="rover-placeholder">
+            🤖 Future Autonomous Rover Verification System — Pending Integration
+        </div>
+
+    </div>
+
+    <!-- ========== EARTHQUAKE ========== -->
+    <div class="disaster-card card-safe" id="card-earthquake">
+
+        <div class="card-header">
+            <h2><span class="card-icon">🌍</span> EARTHQUAKE</h2>
+            <span class="sensor-badge online-badge" id="status-earthquake">● ONLINE</span>
+        </div>
+
+        <div class="confidence-row">
+            <div id="earthquake-confidence" class="confidence-value">0%</div>
+            <div class="state-info">
+                <div id="earthquake-state" class="state-badge state-safe">SAFE</div>
+                <div class="last-update" id="earthquake-last-update">Last update: --</div>
+            </div>
+        </div>
+
+        <!-- Raw Sensor Data -->
+        <div class="raw-data-panel">
+            <div class="raw-panel-title">Raw Sensor Data</div>
+            <div class="data-grid" id="earthquake-raw-panel">
+                <div class="data-row"><span class="data-label">Vibration</span><span class="data-value" id="eq-vib">--</span></div>
+                <div class="data-row"><span class="data-label">Avg Vibration</span><span class="data-value" id="eq-avg-vib">--</span></div>
+            </div>
+        </div>
+
+        <!-- Dual Charts -->
+        <div class="charts-row">
+            <div class="chart-block">
+                <div class="chart-label">📳 Vibration Over Time</div>
+                <canvas id="earthquake-raw-chart"></canvas>
+            </div>
+            <div class="chart-block">
+                <div class="chart-label">📈 Confidence %</div>
+                <canvas id="earthquake-conf-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Verification Section -->
+        <div class="verify-section" id="earthquake-verify">
+            <div class="verify-banner">Verification Required — Awaiting Admin Decision</div>
+            <div class="button-row">
+                <button class="confirm-btn" id="btn-confirm-earthquake" onclick="confirmDisaster('earthquake')">✓ Confirm Earthquake</button>
+                <button class="reject-btn"  id="btn-reject-earthquake"  onclick="rejectDisaster('earthquake')">✗ False Positive</button>
+                <button class="reset-btn"   id="btn-reset-earthquake"   onclick="resetDisaster('earthquake')">↺ Reset</button>
+            </div>
+        </div>
+
+        <!-- Rover Placeholder -->
+        <div class="rover-placeholder">
+            🤖 Future Autonomous Rover Verification System — Pending Integration
+        </div>
+
+    </div>
+
+    <!-- ========== CLOUDBURST ========== -->
+    <div class="disaster-card card-safe" id="card-cloudburst">
+
+        <div class="card-header">
+            <h2><span class="card-icon">🌧</span> CLOUDBURST</h2>
+            <span class="sensor-badge online-badge" id="status-cloudburst">● ONLINE</span>
+        </div>
+
+        <div class="confidence-row">
+            <div id="cloudburst-confidence" class="confidence-value">0%</div>
+            <div class="state-info">
+                <div id="cloudburst-state" class="state-badge state-safe">SAFE</div>
+                <div class="last-update" id="cloudburst-last-update">Last update: --</div>
+            </div>
+        </div>
+
+        <!-- Raw Sensor Data -->
+        <div class="raw-data-panel">
+            <div class="raw-panel-title">Raw Sensor Data</div>
+            <div class="data-grid" id="cloudburst-raw-panel">
+                <div class="data-row"><span class="data-label">Humidity</span><span class="data-value" id="cb-humidity">--</span></div>
+                <div class="data-row"><span class="data-label">Temperature</span><span class="data-value" id="cb-temp">--</span></div>
+                <div class="data-row"><span class="data-label">Baseline Hum.</span><span class="data-value" id="cb-baseline">--</span></div>
+                <div class="data-row"><span class="data-label">Avg Humidity</span><span class="data-value" id="cb-avg-hum">--</span></div>
+                <div class="data-row"><span class="data-label">Hum. Change</span><span class="data-value" id="cb-change">--</span></div>
+                <div class="data-row"><span class="data-label">Baseline</span><span class="data-value" id="cb-baseline-ready">Learning...</span></div>
+            </div>
+        </div>
+
+        <!-- Dual Charts -->
+        <div class="charts-row">
+            <div class="chart-block">
+                <div class="chart-label">💧 Humidity Over Time</div>
+                <canvas id="cloudburst-raw-chart"></canvas>
+            </div>
+            <div class="chart-block">
+                <div class="chart-label">📈 Confidence %</div>
+                <canvas id="cloudburst-conf-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Verification Section -->
+        <div class="verify-section" id="cloudburst-verify">
+            <div class="verify-banner">Verification Required — Awaiting Admin Decision</div>
+            <div class="button-row">
+                <button class="confirm-btn" id="btn-confirm-cloudburst" onclick="confirmDisaster('cloudburst')">✓ Confirm Cloudburst</button>
+                <button class="reject-btn"  id="btn-reject-cloudburst"  onclick="rejectDisaster('cloudburst')">✗ False Positive</button>
+                <button class="reset-btn"   id="btn-reset-cloudburst"   onclick="resetDisaster('cloudburst')">↺ Reset</button>
+            </div>
+        </div>
+
+        <!-- Rover Placeholder -->
+        <div class="rover-placeholder">
+            🤖 Future Autonomous Rover Verification System — Pending Integration
+        </div>
+
+    </div>
+
+    <!-- ========== FOREST FIRE ========== -->
+    <div class="disaster-card card-safe" id="card-forest_fire">
+
+        <div class="card-header">
+            <h2><span class="card-icon">🌲</span> FOREST FIRE</h2>
+            <span class="sensor-badge online-badge" id="status-forest_fire">● ONLINE</span>
+        </div>
+
+        <div class="confidence-row">
+            <div id="forest_fire-confidence" class="confidence-value">0%</div>
+            <div class="state-info">
+                <div id="forest_fire-state" class="state-badge state-safe">SAFE</div>
+                <div class="last-update" id="forest_fire-last-update">Last update: --</div>
+            </div>
+        </div>
+
+        <!-- Raw Sensor Data -->
+        <div class="raw-data-panel">
+            <div class="raw-panel-title">Raw Sensor Data</div>
+            <div class="data-grid" id="forest_fire-raw-panel">
+                <div class="data-row"><span class="data-label">Smoke Value</span><span class="data-value" id="ff-smoke">--</span></div>
+                <div class="data-row"><span class="data-label">Avg Smoke</span><span class="data-value" id="ff-avg-smoke">--</span></div>
+                <div class="data-row"><span class="data-label">Smoke Level</span><span class="data-value" id="ff-level">--</span></div>
+            </div>
+        </div>
+
+        <!-- Dual Charts -->
+        <div class="charts-row">
+            <div class="chart-block">
+                <div class="chart-label">🔥 Smoke Over Time</div>
+                <canvas id="forest_fire-raw-chart"></canvas>
+            </div>
+            <div class="chart-block">
+                <div class="chart-label">📈 Confidence %</div>
+                <canvas id="forest_fire-conf-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Verification Section -->
+        <div class="verify-section" id="forest_fire-verify">
+            <div class="verify-banner">Verification Required — Awaiting Admin Decision</div>
+            <div class="button-row">
+                <button class="confirm-btn" id="btn-confirm-forest_fire" onclick="confirmDisaster('forest_fire')">✓ Confirm Forest Fire</button>
+                <button class="reject-btn"  id="btn-reject-forest_fire"  onclick="rejectDisaster('forest_fire')">✗ False Positive</button>
+                <button class="reset-btn"   id="btn-reset-forest_fire"   onclick="resetDisaster('forest_fire')">↺ Reset</button>
+            </div>
+        </div>
+
+        <!-- Rover Placeholder -->
+        <div class="rover-placeholder">
+            🤖 Future Autonomous Rover Verification System — Pending Integration
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ============================================================ -->
+<!-- ROVER OPERATIONS PANEL                                        -->
+<!-- ============================================================ -->
+
+<section class="rover-panel">
+
+    <div class="rover-panel-header">
+        <h2>🤖 Future Autonomous Rover Verification System</h2>
+        <span class="rover-future-badge">FUTURE INTEGRATION</span>
+    </div>
+
+    <div class="rover-description">
+        This panel is reserved for the upcoming autonomous rover verification system.
+        When a disaster enters the <strong>VERIFYING</strong> state, a rover will be
+        autonomously deployed to the affected zone for physical verification.
+        Rover telemetry, camera feeds, and on-site sensor readings will be displayed here.
+        Current status: <strong>Architecture Reserved — Software Pending</strong>.
+    </div>
+
+    <div class="rover-grid">
+
+        <div class="rover-stat">
+            <div class="rover-stat-label">Rover Status</div>
+            <div class="rover-stat-value">STANDBY</div>
+        </div>
+
+        <div class="rover-stat">
+            <div class="rover-stat-label">Battery</div>
+            <div class="rover-stat-value">100%</div>
+        </div>
+
+        <div class="rover-stat">
+            <div class="rover-stat-label">Target Zone</div>
+            <div class="rover-stat-value">NONE</div>
+        </div>
+
+        <div class="rover-stat">
+            <div class="rover-stat-label">Mission</div>
+            <div class="rover-stat-value">READY</div>
+        </div>
+
+    </div>
+
+    <button class="rover-btn" disabled>
+        🤖 DEPLOY ROVER — NOT YET IMPLEMENTED
+    </button>
+
+</section>
+
+<footer class="project-footer" style="text-align: center; padding: 24px 0 12px; color: var(--muted); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.8; clear: both;">
+    Built by Team GuardianPulse
+</footer>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+
+</body>
+</html>
